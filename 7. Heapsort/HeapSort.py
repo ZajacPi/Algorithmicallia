@@ -1,0 +1,151 @@
+#NIESKOŃCZONE
+import random
+import time
+class Node():
+    def __init__(self, key, data):
+        self.__key = key
+        self.__data = data
+
+    def __lt__(self, other):
+        return self.__key < other.__key
+
+    def __gt__(self, other):
+        return self.__key >other.__key
+    
+    def __repr__(self):
+        return f"{self.__key}: {self.__data}"
+    
+class Heap:
+    def __init__(self, to_sort_ = None):
+        if to_sort_ is None:
+            self.heap = []
+            self.size = len(self.heap)
+        else:
+            self.heap = to_sort_
+
+    def build_heap(self):
+        # Building heap
+        for i in range(self.heap_size // 2, -1, -1):
+            # For every parent in heap, array_len = len(heap)
+            self.dequeue_repair(self.size, i)
+
+    def heapsort(self):
+        # every iteration we skip last element (wchich is sorted)
+        for i in range(self.heap_size - 1, -1, -1):
+            self.heap[i], self.heap[0] = self.heap[0], self.heap[i]
+            self.dequeue_repair(i, 0)
+
+
+    def dequeue_repair(self, i):
+        left = self.left(i)
+        right = self.right(i)
+        #mocno uproszczona i poprawiona dequeue_repair
+        #jak doszliśmy tak głęboko że szukamy indeksów które nie istnieją musimy przerwać
+        if left >= self.heap_size-1:
+            return 
+        max_idx = i
+        if self.heap[left] > self.heap[i]:
+            max_idx = left
+        if right < self.heap_size and self.heap[right] > self.heap[max_idx]:
+            max_idx = right
+
+        if max_idx != i:
+            self.heap[i], self.heap[max_idx] = self.heap[max_idx], self.heap[i]
+            self.dequeue_repair(max_idx)
+
+    def is_empty(self):
+        if len(self.heap) == 0:
+            return True
+        return False
+
+    def peek(self):
+        if self.is_empty():
+            return None
+        return self.heap[0]
+    
+    def dequeue(self):
+        if self.is_empty():
+            return None
+
+        deleted = self.heap[0]
+
+        # Set the last element to the root and remove the last element
+        self.heap[0] = self.heap[self.heap_size - 1]
+        self.heap[self.heap_size - 1] = None
+        self.heap_size -= 1
+
+        # Repair the heap property
+        self.dequeue_repair(0)
+
+        return deleted
+
+
+
+    def enqueue(self, element):
+        #jeśli rozmiar koca równy rozmiarowi tablicy to append
+        if len(self.heap) == self.heap_size:
+            self.heap.append(element)
+            self.heap_size += 1
+
+        #Kiedy usuwam jakiś element to nie skracam listy, więc mogą być puste miejsca
+        else:
+            self.heap[self.heap_size] = element
+            self.heap_size += 1
+        
+        #daję na koniec, i teraz bubblesort
+        i = self.heap_size - 1
+        parent_i = self.parent(i)
+        if  self.heap[i] != None and self.heap[parent_i] != None:
+            while self.heap[i] > self.heap[parent_i]:
+                temp = self.heap[parent_i]
+                self.heap[parent_i] = self.heap[i]
+                self.heap[i] = temp
+                i =  parent_i
+                #dobra hamuj, jesteś już największy!
+                if i == 0:
+                    return 
+                parent_i = self.parent(parent_i)
+
+
+    # funkcje pomocnicze
+    def parent(self, index):
+        return (index-1)//2
+    def left(self, index):
+        return 2*index+1
+    def right(self, index):
+        return 2*index+2
+    
+    def print_tab(self):
+        print ('{', end=' ')
+        print(*self.heap[:self.heap_size], sep=', ', end = ' ')
+        print( '}')
+
+    def print_tree(self, idx, lvl):
+        if idx<self.heap_size:           
+            self.print_tree(self.right(idx), lvl+1)
+            print(2*lvl*'  ', self.heap[idx] if self.heap[idx] else None)           
+            self.print_tree(self.left(idx), lvl+1)
+
+
+
+def test1():
+    data = [ Node(key, value) for key,value in  [(5,'A'), (5,'B'), (7,'C'), (2,'D'), (5,'E'), (1,'F'), (7,'G'), (5,'H'), (1,'I'), (2,'J')]]
+    sorted = []
+    test = Heap(data)
+    test.print_tab()
+    test.print_tree(0, 0)
+    test.heapsort()
+    test.print_tab()
+
+
+def test2():
+    random_numbers = [random.randint(0, 99) for _ in range(10000)]
+
+    t_start = time.perf_counter()
+    test = Heap(random_numbers)
+    t_stop = time.perf_counter()
+    print("Czas obliczeń:", "{:.7f}".format(t_stop - t_start))
+
+
+test1()
+# test2()
