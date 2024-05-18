@@ -21,7 +21,7 @@ class Vertex:
         return str(self.key)
 
 class List_Graph:
-    def __init__(self, initial_matrix_value = 0):
+    def __init__(self):
         self.graph = {} 
         # trzy dodatkowe słowniki indeksowane wierzchołkiem: intree - czy wierzchołek jest w drzewie, distance - minimalna waga krawędzi
         # dla danego wierzchołka, parent - “rodzic”/poprzedni wierzchołek w drzewie (do opisu krawędzi). Rozmiar tych tablic to liczba 
@@ -89,8 +89,9 @@ class List_Graph:
 def MST(graph, first):
     tree = List_Graph()
     v = graph.get_vertex(first)
-    
-    while v.intree == 0:
+    #pierwszy vertex nie ma rodzica i nie będzie miał distance
+    v.distance = 0
+    while v != None and v.intree == 0:
         tree.insert_vertex(v)
         v.intree = 1
         # przeglądamy sąsiadów aktualnie rozważanego wierzchołka:
@@ -118,8 +119,9 @@ def MST(graph, first):
                         min_distance = v.distance
                         next_vertex = v
         
-        tree.insert_edge(next_vertex.parent, next_vertex, min_distance)
-        tree.insert_edge(next_vertex, next_vertex.parent, min_distance)
+        if next_vertex != None:
+            tree.insert_edge(next_vertex.parent, next_vertex, min_distance)
+            tree.insert_edge(next_vertex, next_vertex.parent, min_distance)
 
         v = next_vertex
 
