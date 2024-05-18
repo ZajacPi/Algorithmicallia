@@ -71,10 +71,13 @@ class List_Graph:
             return False
     
     def display(self):
-        print("Graph:")
-        for vertex in self.graph.items():
-            print(f"{vertex}\n")
-            # print(", ".join(edges))
+        print("------GRAPH------")
+        for v in self.vertices():
+            print(v, end = " -> ")
+            for (n, w) in self.neighbours(v):
+                print(n, w, end=";")
+            print()
+        print("-------------------")
 ##############################################################
     def printGraph(g):
         print("------GRAPH------")
@@ -82,6 +85,7 @@ class List_Graph:
             print(v, end = " -> ")
             for (n, w) in g.neighbours(v):
                 print(n, w, end=";")
+            print(f"Czy test w drzewie: {v.intree}")
             print()
         print("-------------------")
     
@@ -91,9 +95,17 @@ def MST(graph, first):
     v = graph.get_vertex(first)
     #pierwszy vertex nie ma rodzica i nie będzie miał distance
     v.distance = 0
+    
+    intree = {}
+    parent = {}
+    distance = {}
+    
     while v != None and v.intree == 0:
         tree.insert_vertex(v)
         v.intree = 1
+        # # lista wierzchołków
+        # MST = []
+
         # przeglądamy sąsiadów aktualnie rozważanego wierzchołka:
         #sprawdzamy, czy waga krawędzi jest mniejsza od tej zapisanej w distance oraz czy wierzchołek nie jest już w drzewie,
         # jeśli warunek jest spełniony, to uaktualniamy  distance dla sąsiada oraz zapamiętujemy parent sąsiada na rozważany wierzchołek,
@@ -106,7 +118,7 @@ def MST(graph, first):
                 # v.distance = weight
                 # neighbour.parent = v
 
-        #szukam kolejnego wierzchołka który dodam do drzewa
+        #szukam kolejnego wierzchołka który dodam do drzew
         # musimy wykonać przegląd po wszystkich wierzchołkach (technicznie po tych, które nie są w drzewie),
         min_distance = float('Inf')
         next_vertex = None
@@ -124,6 +136,10 @@ def MST(graph, first):
             tree.insert_edge(next_vertex, next_vertex.parent, min_distance)
 
         v = next_vertex
+        print('Main graph')
+        graph.printGraph()
+        print('Tree ')
+        tree.printGraph()
 
     tree.printGraph()
 def test():
