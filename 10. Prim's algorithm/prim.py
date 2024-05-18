@@ -1,4 +1,3 @@
-#nieskończone
 from graf_mst import graf
 class Vertex:
     def __init__(self, key, color_=None):
@@ -21,12 +20,6 @@ class Vertex:
 class List_Graph:
     def __init__(self):
         self.graph = {} 
-        # trzy dodatkowe słowniki indeksowane wierzchołkiem: intree - czy wierzchołek jest w drzewie, distance - minimalna waga krawędzi
-        # dla danego wierzchołka, parent - “rodzic”/poprzedni wierzchołek w drzewie (do opisu krawędzi). Rozmiar tych tablic to liczba 
-        # wierzchołków, a ich początkowe wartości to - intree:  0, distance: duża liczba (np. float('inf')), parent: None.  
-        # self.intree = {}
-        # self.distance = {}
-        # self.parent = {}
 
     def insert_vertex(self, vertex):
         if vertex not in self.graph:
@@ -76,6 +69,8 @@ class List_Graph:
                 print(n, w, end=";")
             print()
         print("-------------------")
+
+# Prim's algorithm
 ##############################################################
     def printGraph(g):
         print("------GRAPH------")
@@ -94,7 +89,8 @@ def MST(graph, first):
     intree = {}
     parent = {}
     distance = {}
-    #wszystkie wierzchołki nie są w drzewie
+    #wszystkie wierzchołki nie są w drzewie więc mają 0, nie mają rodziców więc mają dla parent None, a odległość ustawiam na 
+    # nieskończoność 
     for vertex in graph.vertices():
         intree[vertex] = 0
         parent[vertex] = None
@@ -107,14 +103,11 @@ def MST(graph, first):
         # przeglądamy sąsiadów aktualnie rozważanego wierzchołka:
         #sprawdzamy, czy waga krawędzi jest mniejsza od tej zapisanej w distance oraz czy wierzchołek nie jest już w drzewie,
         # jeśli warunek jest spełniony, to uaktualniamy  distance dla sąsiada oraz zapamiętujemy parent sąsiada na rozważany wierzchołek,
-        # if v not in tree and edge.weight < tree_weight[edge]:
-        #     parent[v]
+    
         for neighbour, weight in graph.neighbours(v):
             if intree[neighbour] == 0 and weight < distance[neighbour]:
                 distance[neighbour] = weight
                 parent[neighbour] = v
-                # v.distance = weight
-                # neighbour.parent = v
 
         #szukam kolejnego wierzchołka który dodam do drzew
         # musimy wykonać przegląd po wszystkich wierzchołkach (technicznie po tych, które nie są w drzewie),
@@ -122,20 +115,21 @@ def MST(graph, first):
         next_vertex = None
 
         for v in graph.vertices():
+            #jeśli odległość mniejsza od nieskończoności to znaczy że ją zmieniałem, czyli jest to wierzchołek połączony krawędzią z grafem
             if intree[v] == 0 and distance[v] < float('Inf'):
-                # for neighbour, weight in graph.neighbours(v):
-                    # if neighbour.distance < min_distance:
+                    # aktulizuję najkrótsze połączenie
                     if distance[v] < min_distance:
                         min_distance = distance[v]
                         next_vertex = v
         
+        #dodaję krawędź
         if next_vertex != None:
             tree.insert_edge(parent[next_vertex], next_vertex, min_distance)
             tree.insert_edge(next_vertex, parent[next_vertex], min_distance)
 
         v = next_vertex
-    
     tree.printGraph()
+
 def test():
     test_graph = List_Graph()
 
@@ -144,7 +138,9 @@ def test():
         v2 = Vertex(tup[1])
         test_graph.insert_edge(v1,v2, tup[2])
         test_graph.insert_edge(v2, v1, tup[2])
-    test_graph.printGraph()
+    # test_graph.printGraph()
+
+    #wybieram sobie od jakiej litery mam zacząć rysować drzewo
     MST(test_graph, 'A')
     
 test()
