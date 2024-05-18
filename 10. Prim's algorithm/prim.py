@@ -5,9 +5,7 @@ class Vertex:
         self.key = key
         #dodaję kolor wierzchoła
         self.color = color_
-        self.intree = 0
-        self.distance = float('inf')
-        self.parent = None
+    
 
     def __eq__(self, other):
         if isinstance(other, Vertex):
@@ -85,7 +83,6 @@ class List_Graph:
             print(v, end = " -> ")
             for (n, w) in g.neighbours(v):
                 print(n, w, end=";")
-            print(f"Czy test w drzewie: {v.intree}")
             print()
         print("-------------------")
     
@@ -93,18 +90,19 @@ class List_Graph:
 def MST(graph, first):
     tree = List_Graph()
     v = graph.get_vertex(first)
-    #pierwszy vertex nie ma rodzica i nie będzie miał distance
-    v.distance = 0
-    
+
     intree = {}
     parent = {}
     distance = {}
-    
-    while v != None and v.intree == 0:
+    #wszystkie wierzchołki nie są w drzewie
+    for vertex in graph.vertices():
+        intree[vertex] = 0
+        parent[vertex] = None
+        distance[vertex] = float('Inf')
+
+    while v != None and intree[v] == 0:
         tree.insert_vertex(v)
-        v.intree = 1
-        # # lista wierzchołków
-        # MST = []
+        intree[v] = 1
 
         # przeglądamy sąsiadów aktualnie rozważanego wierzchołka:
         #sprawdzamy, czy waga krawędzi jest mniejsza od tej zapisanej w distance oraz czy wierzchołek nie jest już w drzewie,
@@ -112,9 +110,9 @@ def MST(graph, first):
         # if v not in tree and edge.weight < tree_weight[edge]:
         #     parent[v]
         for neighbour, weight in graph.neighbours(v):
-            if neighbour.intree == 0 and weight < neighbour.distance:
-                neighbour.distance = weight
-                neighbour.parent = v
+            if intree[neighbour] == 0 and weight < distance[neighbour]:
+                distance[neighbour] = weight
+                parent[neighbour] = v
                 # v.distance = weight
                 # neighbour.parent = v
 
@@ -124,23 +122,19 @@ def MST(graph, first):
         next_vertex = None
 
         for v in graph.vertices():
-            if v.intree == 0 and v.distance < float('Inf'):
+            if intree[v] == 0 and distance[v] < float('Inf'):
                 # for neighbour, weight in graph.neighbours(v):
                     # if neighbour.distance < min_distance:
-                    if v.distance < min_distance:
-                        min_distance = v.distance
+                    if distance[v] < min_distance:
+                        min_distance = distance[v]
                         next_vertex = v
         
         if next_vertex != None:
-            tree.insert_edge(next_vertex.parent, next_vertex, min_distance)
-            tree.insert_edge(next_vertex, next_vertex.parent, min_distance)
+            tree.insert_edge(parent[next_vertex], next_vertex, min_distance)
+            tree.insert_edge(next_vertex, parent[next_vertex], min_distance)
 
         v = next_vertex
-        print('Main graph')
-        graph.printGraph()
-        print('Tree ')
-        tree.printGraph()
-
+    
     tree.printGraph()
 def test():
     test_graph = List_Graph()
