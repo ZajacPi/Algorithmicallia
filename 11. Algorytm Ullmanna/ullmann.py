@@ -20,7 +20,7 @@ def ullman_test(używane, macierz_M, aktualny_wiersz=0):
             ullman_test(używane, macierz_M, aktualny_wiersz+1)
             używane[c] = False
 
-def ullmann1(używane, G, P, M, aktualny_wiersz=0, izomorfizmy = None, calls = 1):
+def ullmann_V1(używane, G, P, M, aktualny_wiersz=0, izomorfizmy = None, calls = 1):
     if izomorfizmy is None:
         izomorfizmy = []
     liczba_wierszy = len(M)
@@ -39,7 +39,7 @@ def ullmann1(używane, G, P, M, aktualny_wiersz=0, izomorfizmy = None, calls = 1
             for i in range(len(M[0])):
                 M[aktualny_wiersz][i] = 0
             M[aktualny_wiersz][c] = 1
-            izomorfizmy, calls = ullmann1(używane, G, P, M, aktualny_wiersz+1, izomorfizmy, calls)
+            izomorfizmy, calls = ullmann_V1(używane, G, P, M, aktualny_wiersz+1, izomorfizmy, calls)
             calls += 1
             używane[c] = False
 
@@ -74,6 +74,47 @@ def ullmann_V2(używane, G, P, M, aktualny_wiersz=0, izomorfizmy = None, calls =
     return izomorfizmy, calls
 
 
+def ullmann_V3(używane, G, P, M, aktualny_wiersz=0, izomorfizmy = None, calls = 1):
+    if izomorfizmy is None:
+        izomorfizmy = []
+    liczba_wierszy = len(M)
+
+    if aktualny_wiersz == liczba_wierszy:
+        MG = np.dot(M, G)
+        check = np.dot(M, np.transpose(MG))
+        if np.array_equal(check, P):
+            izomorfizmy.append(np.copy(M))
+        return izomorfizmy, calls
+    
+    M = prune(G, P, M)
+    # tworzę kopię macierzy M i to na niej działam
+    for c in range(len(M[0])):
+        if używane[c] == False and M[aktualny_wiersz][c] != 0:
+            używane[c] = True
+
+            M0 = copy.deepcopy(M)
+            for i in range(len(M0[0])):
+                M0[aktualny_wiersz][i] = 0
+            M0[aktualny_wiersz][c] = 1
+            izomorfizmy, calls = ullmann_V2(używane, G, P, M0, aktualny_wiersz+1, izomorfizmy, calls)
+            calls += 1
+            używane[c] = False
+
+    return izomorfizmy, calls
+
+def prune(G, P, M):
+    Mc = copy.deepcopy(M)
+    while M == Mc:
+        for i in range(len(M)):
+            for j in range(len(M[0])):
+                if M[i][j] == 1:
+                    for x in P.neighbours(i):
+                        for y in G.neighbours(j):
+                            if Mc[x][y] == 1:
+                                Mc[i][j] = 0
+    return Mc
+    
+    
 
 def test1():
     rows = 2
@@ -83,7 +124,7 @@ def test1():
     ullman_test(used_colls, short_matrix)
 
 
-def test2():
+def test_ullmann_V1():
 
     G = Matrix_graph()
     sorted_vertices_G = G.sort_vertices(graph_G)
@@ -111,7 +152,7 @@ def test2():
     rows_G = len(G.graph)
     M = np.zeros((rows_P, rows_G))
     used_colls = [False for x in range(rows_G)]
-    izomorfizmy, calls = ullmann1(used_colls, G.graph, P.graph, M)
+    izomorfizmy, calls = ullmann_V1(used_colls, G.graph, P.graph, M)
     print(f"liczba wywołań: {calls}")
     for izomorfizm in izomorfizmy:
         print(izomorfizm)
@@ -151,6 +192,6 @@ def test_ullman_V2():
         print("################################")
 
 
-# test1()
+# test_ullmann_V1()
 # test2()
 # test_ullman_V2()

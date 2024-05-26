@@ -1,4 +1,4 @@
-from prim import List_Graph
+from prim import List_Graph, MST
 import cv2
 I = cv2.imread('sample.png', cv2.IMREAD_GRAYSCALE)
 
@@ -25,3 +25,4 @@ for i in range(1, X+1):
         graph.insert_edge(key, RU)
 
 # graph.printGraph()
+MST(graph, 0)
