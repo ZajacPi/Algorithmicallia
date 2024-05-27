@@ -84,6 +84,7 @@ class List_Graph:
         
 def MST(graph, first):
     tree = List_Graph()
+    mst_edges = [] 
     v = graph.get_vertex(first)
 
     intree = {}
@@ -126,9 +127,11 @@ def MST(graph, first):
         if next_vertex != None:
             tree.insert_edge(parent[next_vertex], next_vertex, min_distance)
             tree.insert_edge(next_vertex, parent[next_vertex], min_distance)
+            mst_edges.append((parent[next_vertex], next_vertex, min_distance))
 
         v = next_vertex
     tree.printGraph()
+    return mst_edges, tree
 
 def test():
     test_graph = List_Graph()
