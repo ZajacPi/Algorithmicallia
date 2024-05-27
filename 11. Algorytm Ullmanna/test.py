@@ -1,55 +1,30 @@
+from Matrix_graph import Matrix_graph, Vertex
 import numpy as np
 import copy
 
-def ullmann_V2(używane, G, P, M, aktualny_wiersz=0, izomorfizmy=None, calls=1):
-    if izomorfizmy is None:
-        izomorfizmy = []
+graph_G = [ ('A','B',1), ('B','F',1), ('B','C',1), ('C','D',1), ('C','E',1), ('D','E',1)]
+graph_P = [ ('A','B',1), ('B','C',1), ('A','C',1)]
 
-    liczba_wierszy = len(M)
-
-    # Check isomorphism
+def ullman_test(używane, macierz_M, aktualny_wiersz=0):
+    liczba_wierszy = len(macierz_M)
     if aktualny_wiersz == liczba_wierszy:
-        MG = np.dot(M, G)
-        check = np.dot(MG, M.T)
-        if np.array_equal(check, P):
-            izomorfizmy.append(np.copy(M))
-        return izomorfizmy, calls
-
-    for c in range(len(M[0])):
-        if not używane[c] and M[aktualny_wiersz][c] != 0:
+        print("#############################")
+        print(macierz_M)
+        return
+    for c in range(len(macierz_M[0])):
+        if używane[c] == False:
             używane[c] = True
-            M0 = np.copy(M)
-            M0[aktualny_wiersz, :] = 0
-            M0[aktualny_wiersz, c] = 1
-            izomorfizmy, calls = ullmann_V2(używane, G, P, M0, aktualny_wiersz + 1, izomorfizmy, calls)
-            calls += 1
+            for i in range(len(macierz_M[0])):
+                macierz_M[aktualny_wiersz][i] = 0
+            macierz_M[aktualny_wiersz][c] = 1
+            ullman_test(używane, macierz_M, aktualny_wiersz+1)
             używane[c] = False
 
-    return izomorfizmy, calls
+def test():
+    rows = 2
+    columns = 3
+    used_colls = [False for x in range(columns)]
+    short_matrix = np.zeros((rows, columns))
+    ullman_test(used_colls, short_matrix)
 
-# Example usage
-G = np.array([
-    [0, 1, 0, 0, 0, 0],
-    [1, 0, 1, 1, 0, 0],
-    [0, 1, 0, 0, 0, 0],
-    [0, 1, 0, 0, 1, 1],
-    [0, 0, 0, 1, 0, 1],
-    [0, 0, 0, 1, 1, 0]
-])
-
-P = np.array([
-    [0, 1, 1],
-    [1, 0, 1],
-    [1, 1, 0]
-])
-
-# Initialize the matching matrix M and the used columns list
-M = np.zeros((P.shape[0], G.shape[0]))
-używane = [False] * G.shape[0]
-
-# Find isomorphisms
-izomorfizmy, calls = ullmann_V2(używane, G, P, M)
-print("Found isomorphisms:", len(izomorfizmy))
-print("Number of recursive calls:", calls)
-for izomorfizm in izomorfizmy:
-    print(izomorfizm)
+test()

@@ -45,6 +45,17 @@ def ullmann_V1(używane, G, P, M, aktualny_wiersz=0, izomorfizmy = None, calls =
 
     return izomorfizmy, calls
 
+def create_M0(P, G):
+    M0 = np.zeros((len(P), len(G)))
+    for i in range(len(P)):
+        for j in range(len(G)):
+            if degree(P, i) <= degree(G, j):
+                M0[i][j] = 1
+    return M0
+def degree(matrix, vertex):
+    return sum(matrix[vertex])
+
+
 def ullmann_V2(używane, G, P, M, aktualny_wiersz=0, izomorfizmy = None, calls = 1):
     if izomorfizmy is None:
         izomorfizmy = []
@@ -68,8 +79,9 @@ def ullmann_V2(używane, G, P, M, aktualny_wiersz=0, izomorfizmy = None, calls =
             for i in range(len(Mo[0])):
                 Mo[aktualny_wiersz][i] = 0
             Mo[aktualny_wiersz][c] = 1
-            izomorfizmy, calls = ullmann_V2(używane, G, P, Mo, aktualny_wiersz+1, izomorfizmy, calls)
-            calls += 1
+
+            izomorfizmy, calls = ullmann_V2(używane, G, P, Mo, aktualny_wiersz+1, izomorfizmy, calls + 1)
+   
             używane[c] = False
 
     return izomorfizmy, calls
@@ -114,6 +126,7 @@ def ullmann_V3(używane, G, P, M, aktualny_wiersz=0, izomorfizmy = None, calls =
 #                             if Mc[x][y] == 1:
 #                                 Mc[i][j] = 0
 #     return Mc
+
 def prune(G, P, M):
     Mc = copy.deepcopy(M)
     changed = True
@@ -208,7 +221,8 @@ def test_ullman_V2():
     # G.printGraph()
     rows_P = len(P.graph)
     rows_G = len(G.graph)
-    M = np.zeros((rows_P, rows_G))
+    # wrzucam macierze sąsiedztwa
+    M = create_M0(P.graph, G.graph)
     used_colls = [False for x in range(rows_G)]
     izomorfizmy, calls = ullmann_V2(used_colls, G.graph, P.graph, M)
     print(f"liczba wywołań: {calls}")
@@ -249,5 +263,5 @@ def test_ullman_V3():
         print("################################")
 # test1()
 # test_ullmann_V1()
-# test_ullman_V2()
-test_ullman_V3()
+test_ullman_V2()
+# test_ullman_V3()

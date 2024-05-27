@@ -79,16 +79,32 @@ class Matrix_graph:
         self.graph[idx1][idx2] = self.initial
         self.graph[idx2][idx1] = self.initial
 
-    def neighbours(self, vertex_id):
-        idx = 0
-        while self.vert[idx] != vertex_id: 
-            idx += 1        
+    # def neighbours(self, vertex_id):
+    #     idx = 0
+    #     while self.vert != vertex_id: 
+    #         idx += 1        
+    #     result = []
+    #     for i, val in enumerate(self.graph[idx]):
+    #         if val != self.initial:
+    #             result.append((self.vert[i], val))
+    #     return result 
+
+    # def neighbours(self, vertex):
+    #     if chr(vertex+64) in self.vert:
+    #         idx = self.vert.index(vertex)
+    #         result = []
+    #         for i, val in enumerate(self.graph[idx]):
+    #             if val != self.initial:
+    #                 result.append((self.vert[i], val))
+    #         return result
+    #     return []
+    def neighbours(self, index):
         result = []
-        for i, val in enumerate(self.graph[idx]):
-            if val != self.initial:
-                result.append((self.vert[i], val))
-        return result 
-       
+        for i in range(len(self.graph[index])):
+            if self.graph[index][i] != self.initial:
+                result.append(i)
+
+        return result
     def vertices(self):
         #po prostu lista z konstruktora
         return self.vert
