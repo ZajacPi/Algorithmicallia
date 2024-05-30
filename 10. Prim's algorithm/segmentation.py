@@ -15,6 +15,7 @@ def traverse_tree(tree, start_node, color, visited, IS):
                     stack.append(neighbor)
 
 I = cv2.imread('sample.png', cv2.IMREAD_GRAYSCALE)
+
 graph = List_Graph()
 X, Y = I.shape
 for i in range(1, X+1):
@@ -28,7 +29,7 @@ for i in range(1, X+1):
         RD = X*(j-1)+i+1
         LU = X*(j-1)+i-1
         RU = X*(j+1)+i+1
-        graph.insert_edge(Vertex(key), Vertex(left))
+        graph.insert_edge(Vertex(key), Vertex(left), abs(I[i, j] - I[y, x-1]))
         graph.insert_edge(Vertex(key), Vertex(right))
         graph.insert_edge(Vertex(key), Vertex(up))
         graph.insert_edge(Vertex(key), Vertex(down))

@@ -1,8 +1,9 @@
-from graf_mst import graf
+import cv2
+import numpy as np
+
 class Vertex:
     def __init__(self, key, color_=None):
         self.key = key
-        #dodaję kolor wierzchoła
         self.color = color_
     
 
@@ -50,11 +51,6 @@ class List_Graph:
     def vertices(self):
         return list(self.graph.keys())
     
-    # def get_vertex(self, vertex_id):
-    #     for node in self.graph:
-    #         if node.key == str(vertex_id):
-    #             return node
-    
     def get_vertex(self, vertex_id):
         for node in self.graph:
             if node.key == vertex_id:
@@ -75,8 +71,6 @@ class List_Graph:
             print()
         print("-------------------")
 
-# Prim's algorithm
-##############################################################
     def printGraph(g):
         print("------GRAPH------")
         for v in g.vertices():
@@ -86,17 +80,17 @@ class List_Graph:
             print()
         print("-------------------")
     
-        
+# algorytm prima
+##############################################################      
 def MST(graph, first):
     tree = List_Graph()
     mst_edges = [] 
-    v = graph.get_vertex(first)
+    v = first
 
     intree = {}
     parent = {}
     distance = {}
-    #wszystkie wierzchołki nie są w drzewie więc mają 0, nie mają rodziców więc mają dla parent None, a odległość ustawiam na 
-    # nieskończoność 
+
     for vertex in graph.vertices():
         intree[vertex] = 0
         parent[vertex] = None
@@ -106,49 +100,112 @@ def MST(graph, first):
         tree.insert_vertex(v)
         intree[v] = 1
 
-        # przeglądamy sąsiadów aktualnie rozważanego wierzchołka:
-        #sprawdzamy, czy waga krawędzi jest mniejsza od tej zapisanej w distance oraz czy wierzchołek nie jest już w drzewie,
-        # jeśli warunek jest spełniony, to uaktualniamy  distance dla sąsiada oraz zapamiętujemy parent sąsiada na rozważany wierzchołek,
-    
         for neighbour, weight in graph.neighbours(v):
             if intree[neighbour] == 0 and weight < distance[neighbour]:
                 distance[neighbour] = weight
                 parent[neighbour] = v
 
-        #szukam kolejnego wierzchołka który dodam do drzew
-        # musimy wykonać przegląd po wszystkich wierzchołkach (technicznie po tych, które nie są w drzewie),
         min_distance = float('Inf')
         next_vertex = None
 
         for v in graph.vertices():
-            #jeśli odległość mniejsza od nieskończoności to znaczy że ją zmieniałem, czyli jest to wierzchołek połączony krawędzią z grafem
             if intree[v] == 0 and distance[v] < float('Inf'):
-                    # aktulizuję najkrótsze połączenie
                     if distance[v] < min_distance:
                         min_distance = distance[v]
                         next_vertex = v
         
-        #dodaję krawędź
         if next_vertex != None:
             tree.insert_edge(parent[next_vertex], next_vertex, min_distance)
             tree.insert_edge(next_vertex, parent[next_vertex], min_distance)
             mst_edges.append((parent[next_vertex], next_vertex, min_distance))
 
         v = next_vertex
-    tree.printGraph()
-    return mst_edges, tree
+    # tree.printGraph()
+    return tree, mst_edges
 
-def test():
-    test_graph = List_Graph()
-
-    for tup in graf:
-        v1 = Vertex(tup[0])
-        v2 = Vertex(tup[1])
-        test_graph.insert_edge(v1,v2, tup[2])
-        test_graph.insert_edge(v2, v1, tup[2])
-    # test_graph.printGraph()
-
-    #wybieram sobie od jakiej litery mam zacząć rysować drzewo
-    MST(test_graph, 'A')
     
-test()
+
+# trawersacja grafu z wykorzystaniem stosu
+def traverse(I, graph, start, color):
+    stack = [start]
+    visited = set()
+    Y, X = I.shape
+
+    while stack:
+        node = stack.pop()
+        if node not in visited:
+            visited.add(node)
+            # z napotkanych wierzchołków odcczytujemy współrzędne piksela
+            x = node % X
+            y = node // X
+            #wpisuję pod nie kolor
+            I[y, x] = color
+
+            for neighbor, _ in graph.neighbours(node):
+                if neighbor not in visited:
+                    stack.append(neighbor)
+    return I
+
+
+def segmentation(I):
+
+  Y, X = I.shape
+  g = List_Graph()
+  for y in range(Y):
+    for x in range(X):
+      xID = X * y + x
+      if x > 0:
+        # lewy sąsiad
+        g.insert_edge(xID, xID - 1, abs(I[y, x] - I[y, x-1]))
+
+      if x < X - 1:
+        # prawy sąsiad
+        g.insert_edge(xID, xID + 1, abs(I[y, x] - I[y, x+1]))
+      
+      if y > 0:
+        # górny sąsiad
+        g.insert_edge(xID, xID - X, abs(I[y, x] - I[y-1, x]))
+
+      if y < Y - 1:
+        # dolny sąsiad
+        g.insert_edge(xID, xID + X, abs(I[y, x] - I[y+1, x]))
+
+      if x > 0 and y > 0:
+        # lewy górny sąsiad
+        g.insert_edge(xID, xID - X - 1, abs(I[y, x] - I[y-1, x-1]))
+
+      if x < X - 1 and y > 0:
+        # prawy górny sąsiad
+        g.insert_edge(xID, xID - X + 1, abs(I[y, x] - I[y-1, x+1]))
+      
+      if x > 0 and y < Y - 1:
+        # lewy dolny sąsiad
+        g.insert_edge(xID, xID + X - 1, abs(I[y, x] - I[y+1, x-1]))  
+      if x < X - 1 and y < Y - 1:
+        # prawy dolny sąsiad
+        g.insert_edge(xID, xID + X + 1, abs(I[y, x] - I[y+1, x+1]))
+      
+        
+  # MST zwraca listę mst_edges =[parent, vertex, weight] no i tree czyli graf prima
+  tree, mst_edges = MST(g, 0)
+  
+  # muszę znaleźć największą krawędź i ją usunąć
+  max_edge = max(mst_edges, key=lambda e: e[2])
+
+  #usuwam krawędź z grafu wykorzystując metodę klasy
+  tree.delete_edge(max_edge[0], max_edge[1])
+
+  #tworzę macierz wynikową
+  IS = np.zeros((Y, X), dtype='uint8')
+  #trawersuję przez oba drzewa zaczynając od wierzchołków krawędzi którą usunąłem, ustawiam kolor na 100 i 200
+  IS = traverse(IS, tree, max_edge[0], 100)
+  IS = traverse(IS, tree, max_edge[1], 200)
+
+  cv2.imshow("Wynik",IS)
+  cv2.waitKey() 
+
+
+def main():
+  I = cv2.imread('sample.png', cv2.IMREAD_GRAYSCALE).astype(int)
+  segmentation(I)
+main()

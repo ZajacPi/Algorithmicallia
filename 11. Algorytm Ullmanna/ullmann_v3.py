@@ -53,7 +53,7 @@ def ullmann_V3(używane, G, P, M, aktualny_wiersz=0, izomorfizmy = None, calls =
 
 
 def prune(G, P, M):
-    Mc = copy.deepcopy(M)
+    # Mc = copy.deepcopy(M)
     changed = True
 
     while changed == True:
@@ -64,9 +64,10 @@ def prune(G, P, M):
                     valid = False
                     P_neighbours = P.neighbours(i)
                     G_neighbours = G.neighbours(j)
+
                     for x in P_neighbours:
                         for y in G_neighbours:
-                            if Mc[x][y] == 1:
+                            if M[x][y] == 1:
                                 #jeśli istnieje taki sąsiad y wierzchołka j grafu żę M[x][y] == 1 to przerywam 
                                 valid = True
                                 break
@@ -74,11 +75,12 @@ def prune(G, P, M):
                             break
                     #jeżeli valid będzie na False to znaczy że nie isntnieje taki sąsiad
                     if valid == False:
-                        Mc[i][j] = 0
+                        M[i][j] = 0
                         changed = True
-        M = copy.deepcopy(Mc)
+                        break
+        # M = copy.deepcopy(Mc)
     
-    return Mc
+    return M
     
 
 def test_ullman_V3():

@@ -1,4 +1,5 @@
 import numpy as np
+from copy import deepcopy
 def exist(matrix, neighboursP, neighboursG):
   for x in neighboursP:
     exist = False
@@ -9,7 +10,7 @@ def exist(matrix, neighboursP, neighboursG):
       return False
   return True
 
-def prune(matrix, G : 'Graph', P : 'Graph', row):
+def prune(matrix, G, P, row):
   Y, X = matrix.shape
   change = True
   while change:
@@ -58,7 +59,7 @@ def ullmann3(G , P):
       if not usedCols[col] and matrix[row, col]:
         newM = deepcopy(matrix)
         usedCols[col] = True
-        newM[row, 🙂 = 0
+        newM[row, :] = 0
         newM[row, col] = 1
         backtrack(newM, row + 1)
         usedCols[col] = False
