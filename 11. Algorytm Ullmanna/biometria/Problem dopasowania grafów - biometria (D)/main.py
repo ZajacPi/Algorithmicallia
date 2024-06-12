@@ -163,8 +163,10 @@ def merge_near_vertices(self, threshold):
     
     for v1, v2, edge in new_edges:
         self.insert_edge(v1, v2, edge)
-def transform(graph, )
-def biometric_graph_registration():
+#do określania odległości między każdą możliwą parą krawędzi  z grafów wejściowych
+def distance(v1, v2):
+    pass
+def biometric_graph_registration(graph1, graph2, Ni, eps):
     pass
 
 def main():
